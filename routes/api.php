@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -32,6 +33,9 @@ Route::get('products/{id}', [ProductController::class, 'show']);
 
 Route::get('roles', [RoleController::class, 'index']);
 Route::get('roles/{id}', [RoleController::class, 'show']);
+// Routes d'authentification
+Route::post('login', [AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
 
 // Routes protégées
 Route::middleware('auth:sanctum')->group(function () {
