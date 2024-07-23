@@ -2,9 +2,6 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
-
-
-
 const dataviewValue = ref([]);
 const layout = ref('grid');
 const sortKey = ref(null);
@@ -18,7 +15,16 @@ const sortOptions = ref([
 const fetchProducts = async () => {
     try {
         const response = await axios.get('http://127.0.0.1:8000/api/products');
-        dataviewValue.value = response.data;
+        const products = response.data;
+
+        // Fetch category names for each product
+        const fetchCategoryNames = products.map(async (product) => {
+            const categoryResponse = await axios.get(`http://127.0.0.1:8000/api/categories/${product.category_id}`);
+            product.categoryName = categoryResponse.data.name;
+            return product;
+        });
+
+        dataviewValue.value = await Promise.all(fetchCategoryNames);
     } catch (error) {
         console.error('Error fetching products:', error);
     }
@@ -54,6 +60,7 @@ const getSeverity = (product) => {
 };
 </script>
 
+
 <template>
     <div class="grid">
         <div class="col-12">
@@ -82,7 +89,7 @@ const getSeverity = (product) => {
                                     <div class="flex flex-column md:flex-row justify-content-between md:align-items-center flex-1 gap-4">
                                         <div class="flex flex-row md:flex-column justify-content-between align-items-start gap-2">
                                             <div>
-                                                <span class="font-medium text-secondary text-sm">{{ item.category_id }}</span>
+                                                <span class="font-medium text-secondary text-sm">{{ item.categoryName }}</span>
                                                 <div class="text-lg font-medium text-900 mt-2">{{ item.nom }}</div>
                                             </div>
                                             <div class="surface-100 p-1" style="border-radius: 30px">
@@ -118,7 +125,7 @@ const getSeverity = (product) => {
                                     <div class="pt-4">
                                         <div class="flex flex-row justify-content-between align-items-start gap-2">
                                             <div>
-                                                <span class="font-medium text-secondary text-sm">{{ item.category_id }}</span>
+                                                <span class="font-medium text-secondary text-sm">{{ item.categoryName }}</span>
                                                 <div class="text-lg font-medium text-900 mt-1">{{ item.nom }}</div>
                                             </div>
                                             <div class="surface-100 p-1" style="border-radius: 30px">
@@ -143,9 +150,8 @@ const getSeverity = (product) => {
                 </DataView>
             </div>
         </div>
-
-
     </div>
 </template>
+
 
 
