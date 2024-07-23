@@ -29,6 +29,7 @@ Route::get('clients/{id}', [ClientController::class, 'show']);
 Route::get('categories', [CategoryController::class, 'index']);
 Route::post('categories', [CategoryController::class, 'store']);
 Route::get('categories/{id}', [CategoryController::class, 'show']);
+Route::delete('categories/{id}', [CategoryController::class, 'destroy']);
 
 Route::get('products', [ProductController::class, 'index']);
 Route::post('products', [ProductController::class, 'store']);

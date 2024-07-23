@@ -49,9 +49,14 @@ const model = ref([
                 ]
             },
             {
-                label: 'Crud',
+                label: 'Product',
                 icon: 'pi pi-fw pi-pencil',
                 to: '/pages/crud'
+            },
+            {
+                label: 'Category',
+                icon: 'pi pi-fw pi-pencil',
+                to: '/pages/Category'
             },
             {
                 label: 'Timeline',
