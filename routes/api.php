@@ -23,31 +23,36 @@ use App\Http\Controllers\OrderController;
 
 // Routes publiques
 Route::get('clients', [ClientController::class, 'index']);
+Route::post('clients', [ClientController::class, 'store']);
 Route::get('clients/{id}', [ClientController::class, 'show']);
 
 Route::get('categories', [CategoryController::class, 'index']);
+Route::post('categories', [CategoryController::class, 'store']);
 Route::get('categories/{id}', [CategoryController::class, 'show']);
 
 Route::get('products', [ProductController::class, 'index']);
+Route::post('products', [ProductController::class, 'store']);
 Route::get('products/{id}', [ProductController::class, 'show']);
 
 Route::get('roles', [RoleController::class, 'index']);
+Route::post('roles', [RoleController::class, 'store']);
 Route::get('roles/{id}', [RoleController::class, 'show']);
 // Routes d'authentification
 Route::post('login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
+/////////////
+Route::get('users', [UserController::class, 'index']);
+Route::get('users/{id}', [UserController::class, 'show']);
+Route::post('users', [UserController::class, 'store']);
+Route::put('users/{id}', [UserController::class, 'update']);
+Route::delete('users/{id}', [UserController::class, 'destroy']);
 
+Route::get('orders', [OrderController::class, 'index']);
+Route::get('orders/{id}', [OrderController::class, 'show']);
+Route::post('orders', [OrderController::class, 'store']);
+Route::put('orders/{id}', [OrderController::class, 'update']);
+Route::delete('orders/{id}', [OrderController::class, 'destroy']);
 // Routes protégées
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('users', [UserController::class, 'index']);
-    Route::get('users/{id}', [UserController::class, 'show']);
-    Route::post('users', [UserController::class, 'store']);
-    Route::put('users/{id}', [UserController::class, 'update']);
-    Route::delete('users/{id}', [UserController::class, 'destroy']);
 
-    Route::get('orders', [OrderController::class, 'index']);
-    Route::get('orders/{id}', [OrderController::class, 'show']);
-    Route::post('orders', [OrderController::class, 'store']);
-    Route::put('orders/{id}', [OrderController::class, 'update']);
-    Route::delete('orders/{id}', [OrderController::class, 'destroy']);
 });
