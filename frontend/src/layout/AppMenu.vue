@@ -65,8 +65,23 @@ const model = ref([
             },
             {
                 label: 'User',
-                icon: 'pi pi-fw pi-pencil',
+                icon: 'pi pi-fw pi-user',
                 to: '/pages/User'
+            },
+            {
+                label: 'Order',
+                icon: 'pi pi-fw pi-pencil',
+                to: '/pages/Order'
+            },
+            {
+                label: 'Delivery Service',
+                icon: 'pi pi-fw pi-pencil',
+                to: '/pages/Delivery'
+            },
+            {
+                label: 'Roles',
+                icon: 'pi pi-fw pi-pencil',
+                to: '/pages/Role'
             },
             {
                 label: 'Timeline',

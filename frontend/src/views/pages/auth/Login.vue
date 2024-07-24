@@ -40,7 +40,11 @@ const handleLogin = async () => {
         if (user.role_id === 1) {
             router.push({ path: '/' });
         } else {
-            router.push({ path: '/uikit/list' });
+            if (user.role_id===2){
+                router.push({ path: '/uikit/list' });
+            }else {
+                router.push({ path: '/pages/delivery' });
+            }
         }
 
     } catch (error) {

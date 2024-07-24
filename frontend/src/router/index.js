@@ -152,6 +152,21 @@ const router = createRouter({
                     component: () => import('@/views/pages/User.vue')
                 },
                 {
+                    path: '/pages/order',
+                    name: 'order',
+                    component: () => import('@/views/pages/Order.vue')
+                },
+                {
+                    path: '/pages/delivery',
+                    name: 'delivery',
+                    component: () => import('@/views/pages/Delivery.vue')
+                },
+                {
+                    path: '/pages/role',
+                    name: 'role',
+                    component: () => import('@/views/pages/Role.vue')
+                },
+                {
                     path: '/documentation',
                     name: 'documentation',
                     component: () => import('@/views/utilities/Documentation.vue')

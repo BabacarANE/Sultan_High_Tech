@@ -40,6 +40,8 @@ Route::delete('products/{id}', [ProductController::class, 'destroy']);
 Route::get('roles', [RoleController::class, 'index']);
 Route::post('roles', [RoleController::class, 'store']);
 Route::get('roles/{id}', [RoleController::class, 'show']);
+Route::delete('roles/{id}', [RoleController::class, 'destroy']);
+
 // Routes d'authentification
 Route::post('login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
@@ -55,6 +57,9 @@ Route::get('orders/{id}', [OrderController::class, 'show']);
 Route::post('orders', [OrderController::class, 'store']);
 Route::put('orders/{id}', [OrderController::class, 'update']);
 Route::delete('orders/{id}', [OrderController::class, 'destroy']);
+Route::post('orders/{id}/validate', [OrderController::class, 'validateOrder']);
+Route::post('/orders/{id}/deliver', [OrderController::class, 'markAsDelivered']);
+
 // Routes protégées
 Route::middleware('auth:sanctum')->group(function () {
 

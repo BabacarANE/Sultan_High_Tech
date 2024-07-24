@@ -2,17 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ProcessDelivery;
+use App\Mail\OrderProcessedMail;
+use App\Models\DetailOrder;
 use App\Models\Order;
 use App\Models\OrderProduct;
+use App\Models\Product;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+
 class OrderController extends Controller
 {
     public function index()
     {
-        return Order::with('products')->get();
+        return Order::with(['products', 'detailOrder'])->get();
     }
 
     public function show($id)
@@ -120,5 +129,88 @@ class OrderController extends Controller
         });
 
         return response()->json(['message' => 'Order deleted successfully'], 204);
+    }
+    public function generateDeliveryNotePDF($orderId)
+    {
+        $order = Order::with('client', 'products')->findOrFail($orderId);
+        $pdf = PDF::loadView('pdf.delivery_note', compact('order'));
+
+        // Save the PDF to storage
+        $filePath = 'delivery_notes/bon_de_livraison_' . $order->id . '.pdf';
+        Storage::put($filePath, $pdf->output());
+
+        return $filePath;
+    }
+
+    public function generateInvoicePDF($orderId)
+    {
+        $order = Order::with('client', 'products')->findOrFail($orderId);
+        $pdf = PDF::loadView('pdf.invoice', compact('order'));
+
+        // Save the PDF to storage
+        $filePath = 'invoices/facture_' . $order->id . '.pdf';
+        Storage::put($filePath, $pdf->output());
+
+        return $filePath;
+    }
+    public function validateOrder($id)
+    {
+        Log::info('Début de la validation de la commande: ' . $id);
+
+        $order = Order::findOrFail($id);
+        Log::info('Commande trouvée: ' . $order->id);
+
+        $order->statut = 'validé';
+        $order->save();
+        Log::info('Statut de la commande mis à jour');
+        // Generate and save PDFs
+        $deliveryNotePath = $this->generateDeliveryNotePDF($order->id);
+        $invoicePath = $this->generateInvoicePDF($order->id);
+
+        // Save the file paths in the detail_orders table
+        DetailOrder::create([
+            'order_id' => $order->id,
+            'delivery_note_path' => $deliveryNotePath,
+            'invoice_path' => $invoicePath,
+        ]);
+
+        ///send email
+        try {
+            Mail::to($order->client->user->email)->send(new OrderProcessedMail($order));
+            Log::info('Email envoyé à: ' . $order->client->email);
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de l\'envoi de l\'email: ' . $e->getMessage());
+            return response()->json(['error' => 'Erreur lors de l\'envoi de l\'email'], 500);
+        }
+
+        ProcessDelivery::dispatch($order);
+        Log::info('Job de livraison dispatché');
+
+        return response()->json(['message' => 'Commande validée et notification envoyée.']);
+    }
+    public function markAsDelivered($id)
+    {
+        Log::info('Début de la livraison de la commande: ' . $id);
+
+        // Retrieve the order
+        $order = Order::with('products')->findOrFail($id);
+
+        // Update the order status to 'delivered'
+        $order->statut = 'livré';
+        $order->save();
+        Log::info('Statut de la commande mis à jour');
+
+        // Update stock quantities
+        foreach ($order->products as $product) {
+            $productModel = Product::find($product->id);
+            if ($productModel) {
+                $newStock = $productModel->quantite_en_stock - $product->pivot->quantite;
+                $productModel->quantite_en_stock = $newStock;
+                $productModel->save();
+            }
+        }
+        Log::info('Quantités de stock mises à jour');
+
+        return response()->json(['message' => 'Commande marquée comme livrée et stock mis à jour.']);
     }
 }

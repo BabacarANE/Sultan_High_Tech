@@ -23,5 +23,9 @@ class Order extends Model
         return $this->belongsToMany(Product::class, 'order_products')
             ->withPivot('quantite', 'prix_unitaire');
     }
+    public function detailOrder()
+    {
+        return $this->hasOne(DetailOrder::class);
+    }
 }
 
