@@ -1,6 +1,95 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
+import { useStore } from 'vuex';
+import { useToast } from 'primevue/usetoast';
 import axios from 'axios';
+import InputNumber from 'primevue/inputnumber';
+
+const store = useStore();
+const toast = useToast();
+
+const orderDialogVisible = ref(false);
+const selectedProduct = ref(null);
+const orderDetails = ref({
+    prenom: '',
+    nom: '',
+    email: '',
+    numero_telephone: '',
+    adresse: '',
+    sexe: '',
+    products: []
+});
+
+const user = computed(() => store.state.user.currentUser);
+
+const totalPrice = computed(() => {
+    if (selectedProduct.value && orderDetails.value.products[0]) {
+        return selectedProduct.value.prix * orderDetails.value.products[0].quantite;
+    }
+    return 0;
+});
+
+const updateQuantity = (quantity) => {
+    if (orderDetails.value.products[0]) {
+        orderDetails.value.products[0].quantite = quantity;
+    }
+};
+
+const openOrderDialog = (product) => {
+    selectedProduct.value = product;
+    orderDetails.value = {
+        ...orderDetails.value,
+        ...user.value,
+        products: [{
+            product_id: product.id,
+            quantite: 1,
+            prix_unitaire: product.prix
+        }]
+    };
+    orderDialogVisible.value = true;
+};
+
+const closeOrderDialog = () => {
+    orderDialogVisible.value = false;
+    selectedProduct.value = null;
+};
+
+const placeOrder = async () => {
+    try {
+        const response = await axios.post('http://127.0.0.1:8000/api/orders', orderDetails.value);
+        toast.add({ severity: 'success', summary: 'Commande passée', detail: 'Votre commande a été passée avec succès', life: 3000 });
+        closeOrderDialog();
+    } catch (error) {
+        console.error('Erreur lors de la commande:', error);
+        toast.add({ severity: 'error', summary: 'Erreur', detail: 'Impossible de passer la commande', life: 3000 });
+    }
+};
+
+const addToWishlist = (product) => {
+    const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    const existingProduct = wishlist.find(item => item.id === product.id);
+
+    if (!existingProduct) {
+        wishlist.push(product);
+        localStorage.setItem('wishlist', JSON.stringify(wishlist));
+        toast.add({ severity: 'success', summary: 'Ajouté', detail: 'Produit ajouté à la liste de souhaits', life: 3000 });
+    } else {
+        toast.add({ severity: 'info', summary: 'Déjà ajouté', detail: 'Ce produit est déjà dans votre liste de souhaits', life: 3000 });
+    }
+};
+
+// Initialiser les détails de la commande avec les données de l'utilisateur si disponibles
+if (user.value) {
+    orderDetails.value = {
+        ...orderDetails.value,
+        prenom: user.value.prenom,
+        nom: user.value.nom,
+        email: user.value.email,
+        numero_telephone: user.value.client?.numero_telephone,
+        adresse: user.value.client?.adresse,
+        sexe: user.value.client?.sexe
+    };
+}
 
 const dataviewValue = ref([]);
 const layout = ref('grid');
@@ -140,8 +229,8 @@ const getSeverity = (product) => {
                                         <div class="flex flex-column gap-4 mt-4">
                                             <span class="text-2xl font-semibold text-900">{{ item.prix }}</span>
                                             <div class="flex gap-2">
-                                                <Button icon="pi pi-shopping-cart" label="Buy Now" :disabled="item.quantite_en_stock === 0" class="flex-auto white-space-nowrap"></Button>
-                                                <Button icon="pi pi-heart" outlined></Button>
+                                                <Button icon="pi pi-shopping-cart" label="Buy Now" :disabled="item.quantite_en_stock === 0" class="flex-auto white-space-nowrap" @click="openOrderDialog(item)"></Button>
+                                                <Button icon="pi pi-heart" outlined @click="addToWishlist(item)"></Button>
                                             </div>
                                         </div>
                                     </div>
@@ -153,6 +242,46 @@ const getSeverity = (product) => {
             </div>
         </div>
     </div>
+    <Dialog v-model:visible="orderDialogVisible" header="Order Details" :style="{width: '50vw'}" :modal="true">
+        <div class="p-fluid">
+            <div class="field">
+                <label for="prenom">Prénom</label>
+                <InputText id="prenom" v-model="orderDetails.prenom" required />
+            </div>
+            <div class="field">
+                <label for="nom">Nom</label>
+                <InputText id="nom" v-model="orderDetails.nom" required />
+            </div>
+            <div class="field">
+                <label for="email">Email</label>
+                <InputText id="email" v-model="orderDetails.email" required type="email" />
+            </div>
+            <div class="field">
+                <label for="numero_telephone">Numéro de téléphone</label>
+                <InputText id="numero_telephone" v-model="orderDetails.numero_telephone" required />
+            </div>
+            <div class="field">
+                <label for="adresse">Adresse</label>
+                <InputText id="adresse" v-model="orderDetails.adresse" required />
+            </div>
+            <div class="field">
+                <label for="sexe">Sexe</label>
+                <Dropdown id="sexe" v-model="orderDetails.sexe" :options="['M', 'F']" placeholder="Sélectionnez le sexe" />
+            </div>
+            <div class="field">
+                <label for="quantity">Quantité</label>
+                <InputNumber id="quantity" v-model="orderDetails.products[0].quantite" @input="updateQuantity" :min="1" required />
+            </div>
+            <div class="field">
+                <label>Prix total</label>
+                <div class="text-2xl font-bold">{{ totalPrice.toFixed(2) }} €</div>
+            </div>
+        </div>
+        <template #footer>
+            <Button label="Annuler" icon="pi pi-times" @click="closeOrderDialog" class="p-button-text"/>
+            <Button label="Commander" icon="pi pi-check" @click="placeOrder" autofocus />
+        </template>
+    </Dialog>
 </template>
 
 <style scoped>
