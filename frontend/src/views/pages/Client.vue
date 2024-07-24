@@ -6,12 +6,12 @@ import axios from 'axios';
 
 const toast = useToast();
 
-const categories = ref(null);
-const categoryDialog = ref(false);
-const deleteCategoryDialog = ref(false);
-const deleteCategoriesDialog = ref(false);
-const category = ref({});
-const selectedCategories = ref(null);
+const clients = ref(null);
+const clientDialog = ref(false);
+const deleteClientDialog = ref(false);
+const deleteClientsDialog = ref(false);
+const client = ref({});
+const selectedClients = ref(null);
 const dt = ref(null);
 const filters = ref({});
 const submitted = ref(false);
@@ -21,16 +21,16 @@ onBeforeMount(() => {
 });
 
 onMounted(() => {
-    fetchCategories();
+    fetchClients();
 });
 
-const fetchCategories = async () => {
+const fetchClients = async () => {
     try {
-        const response = await axios.get('http://127.0.0.1:8000/api/categories');
-        categories.value = response.data;
+        const response = await axios.get('http://127.0.0.1:8000/api/clients');
+        clients.value = response.data;
     } catch (error) {
-        console.error('Error fetching categories:', error);
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch categories', life: 3000 });
+        console.error('Error fetching clients:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch clients', life: 3000 });
     }
 };
 
@@ -39,59 +39,59 @@ const formatDate = (value) => {
 };
 
 const openNew = () => {
-    category.value = {};
+    client.value = { sexe: 'M' }; // Default value for sex
     submitted.value = false;
-    categoryDialog.value = true;
+    clientDialog.value = true;
 };
 
 const hideDialog = () => {
-    categoryDialog.value = false;
+    clientDialog.value = false;
     submitted.value = false;
 };
 
-const saveCategory = async () => {
+const saveClient = async () => {
     submitted.value = true;
-    if (category.value.name && category.value.name.trim()) {
+    if (client.value.nom && client.value.prenom && client.value.numero_telephone) {
         try {
-            if (category.value.id) {
-                // Update existing category
-                await axios.post(`http://127.0.0.1:8000/api/categories/${category.value.id}`, category.value);
-                toast.add({ severity: 'success', summary: 'Successful', detail: 'Category Updated', life: 3000 });
+            if (client.value.id) {
+                // Update existing client
+                await axios.post(`http://127.0.0.1:8000/api/clients/${client.value.id}`, client.value);
+                toast.add({ severity: 'success', summary: 'Successful', detail: 'Client Updated', life: 3000 });
             } else {
-                // Create new category
-                await axios.post('http://127.0.0.1:8000/api/categories', category.value);
-                toast.add({ severity: 'success', summary: 'Successful', detail: 'Category Created', life: 3000 });
+                // Create new client
+                await axios.post('http://127.0.0.1:8000/api/clients', client.value);
+                toast.add({ severity: 'success', summary: 'Successful', detail: 'Client Created', life: 3000 });
             }
-            categoryDialog.value = false;
-            category.value = {};
-            await fetchCategories(); // Refresh the category list
+            clientDialog.value = false;
+            client.value = {};
+            await fetchClients(); // Refresh the client list
         } catch (error) {
-            console.error('Error saving category:', error);
-            toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save category', life: 3000 });
+            console.error('Error saving client:', error);
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save client', life: 3000 });
         }
     }
 };
 
-const editCategory = (editCategory) => {
-    category.value = { ...editCategory };
-    categoryDialog.value = true;
+const editClient = (editClient) => {
+    client.value = { ...editClient };
+    clientDialog.value = true;
 };
 
-const confirmDeleteCategory = (editCategory) => {
-    category.value = editCategory;
-    deleteCategoryDialog.value = true;
+const confirmDeleteClient = (editClient) => {
+    client.value = editClient;
+    deleteClientDialog.value = true;
 };
 
-const deleteCategory = async () => {
+const deleteClient = async () => {
     try {
-        await axios.delete(`http://127.0.0.1:8000/api/categories/${category.value.id}`);
-        categories.value = categories.value.filter((val) => val.id !== category.value.id);
-        deleteCategoryDialog.value = false;
-        category.value = {};
-        toast.add({ severity: 'success', summary: 'Successful', detail: 'Category Deleted', life: 3000 });
+        await axios.delete(`http://127.0.0.1:8000/api/clients/${client.value.id}`);
+        clients.value = clients.value.filter((val) => val.id !== client.value.id);
+        deleteClientDialog.value = false;
+        client.value = {};
+        toast.add({ severity: 'success', summary: 'Successful', detail: 'Client Deleted', life: 3000 });
     } catch (error) {
-        console.error('Error deleting category:', error);
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete category', life: 3000 });
+        console.error('Error deleting client:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete client', life: 3000 });
     }
 };
 
@@ -100,21 +100,21 @@ const exportCSV = () => {
 };
 
 const confirmDeleteSelected = () => {
-    deleteCategoriesDialog.value = true;
+    deleteClientsDialog.value = true;
 };
 
-const deleteSelectedCategories = async () => {
+const deleteSelectedClients = async () => {
     try {
-        for (let category of selectedCategories.value) {
-            await axios.delete(`http://127.0.0.1:8000/api/categories/${category.id}`);
+        for (let client of selectedClients.value) {
+            await axios.delete(`http://127.0.0.1:8000/api/clients/${client.id}`);
         }
-        categories.value = categories.value.filter((val) => !selectedCategories.value.includes(val));
-        deleteCategoriesDialog.value = false;
-        selectedCategories.value = null;
-        toast.add({ severity: 'success', summary: 'Successful', detail: 'Categories Deleted', life: 3000 });
+        clients.value = clients.value.filter((val) => !selectedClients.value.includes(val));
+        deleteClientsDialog.value = false;
+        selectedClients.value = null;
+        toast.add({ severity: 'success', summary: 'Successful', detail: 'Clients Deleted', life: 3000 });
     } catch (error) {
-        console.error('Error deleting selected categories:', error);
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete selected categories', life: 3000 });
+        console.error('Error deleting selected clients:', error);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete selected clients', life: 3000 });
     }
 };
 
@@ -130,27 +130,21 @@ const initFilters = () => {
         <div class="col-12">
             <div class="card">
                 <Toolbar class="mb-4">
-                    <template v-slot:start>
-                        <div class="my-2">
-                            <Button label="New" icon="pi pi-plus" class="mr-2" severity="success" @click="openNew" />
-                            <Button label="Delete" icon="pi pi-trash" severity="danger" @click="confirmDeleteSelected"
-                                    :disabled="!selectedCategories || !selectedCategories.length" />
-                        </div>
-                    </template>
+
 
                     <template v-slot:end>
                         <Button label="Export" icon="pi pi-upload" severity="help" @click="exportCSV($event)" />
                     </template>
                 </Toolbar>
 
-                <DataTable ref="dt" :value="categories" v-model:selection="selectedCategories" dataKey="id"
+                <DataTable ref="dt" :value="clients" v-model:selection="selectedClients" dataKey="id"
                            :paginator="true" :rows="10" :filters="filters"
                            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                            :rowsPerPageOptions="[5, 10, 25]"
-                           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} categories">
+                           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} clients">
                     <template #header>
                         <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-                            <h5 class="m-0">Manage Categories</h5>
+                            <h5 class="m-0">Manage Clients</h5>
                             <span class="block mt-2 md:mt-0 p-input-icon-left">
                                 <i class="pi pi-search" />
                                 <InputText v-model="filters['global'].value" placeholder="Search..." />
@@ -159,69 +153,99 @@ const initFilters = () => {
                     </template>
 
                     <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
-                    <Column field="id" header="ID" :sortable="true" headerStyle="width:15%; min-width:8rem;">
+                    <Column field="id" header="ID" :sortable="true" headerStyle="width:10%; min-width:8rem;">
                         <template #body="slotProps">
                             <span class="p-column-title">ID</span>
                             {{ slotProps.data.id }}
                         </template>
                     </Column>
-                    <Column field="name" header="Name" :sortable="true" headerStyle="width:35%; min-width:10rem;">
+                    <Column field="nom" header="Nom" :sortable="true" headerStyle="width:15%; min-width:10rem;">
                         <template #body="slotProps">
-                            <span class="p-column-title">Name</span>
-                            {{ slotProps.data.name }}
+                            <span class="p-column-title">Nom</span>
+                            {{ slotProps.data.nom }}
                         </template>
                     </Column>
-                    <Column field="created_at" header="Created At" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="prenom" header="Prénom" :sortable="true" headerStyle="width:15%; min-width:10rem;">
                         <template #body="slotProps">
-                            <span class="p-column-title">Created At</span>
-                            {{ formatDate(slotProps.data.created_at) }}
+                            <span class="p-column-title">Prénom</span>
+                            {{ slotProps.data.prenom }}
                         </template>
                     </Column>
-                    <Column field="updated_at" header="Updated At" :sortable="true" headerStyle="width:20%; min-width:10rem;">
+                    <Column field="adresse" header="Adresse" :sortable="true" headerStyle="width:20%; min-width:10rem;">
                         <template #body="slotProps">
-                            <span class="p-column-title">Updated At</span>
-                            {{ formatDate(slotProps.data.updated_at) }}
+                            <span class="p-column-title">Adresse</span>
+                            {{ slotProps.data.adresse }}
+                        </template>
+                    </Column>
+                    <Column field="numero_telephone" header="Téléphone" :sortable="true" headerStyle="width:15%; min-width:10rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">Téléphone</span>
+                            {{ slotProps.data.numero_telephone }}
+                        </template>
+                    </Column>
+                    <Column field="sexe" header="Sexe" :sortable="true" headerStyle="width:10%; min-width:8rem;">
+                        <template #body="slotProps">
+                            <span class="p-column-title">Sexe</span>
+                            {{ slotProps.data.sexe }}
                         </template>
                     </Column>
                     <Column headerStyle="min-width:10rem;">
                         <template #body="slotProps">
-                            <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" @click="editCategory(slotProps.data)" />
-                            <Button icon="pi pi-trash" class="p-button-rounded p-button-warning" @click="confirmDeleteCategory(slotProps.data)" />
+                            <Button icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" @click="editClient(slotProps.data)" />
+                            <Button icon="pi pi-trash" class="p-button-rounded p-button-warning" @click="confirmDeleteClient(slotProps.data)" />
                         </template>
                     </Column>
                 </DataTable>
 
-                <Dialog v-model:visible="categoryDialog" :style="{width: '450px'}" header="Category Details" :modal="true" class="p-fluid">
+                <Dialog v-model:visible="clientDialog" :style="{width: '450px'}" header="Client Details" :modal="true" class="p-fluid">
                     <div class="field">
-                        <label for="name">Name</label>
-                        <InputText id="name" v-model.trim="category.name" required="true" autofocus :class="{'p-invalid': submitted && !category.name}" />
-                        <small class="p-invalid" v-if="submitted && !category.name">Name is required.</small>
+                        <label for="nom">Nom</label>
+                        <InputText id="nom" v-model.trim="client.nom" required="true" autofocus :class="{'p-invalid': submitted && !client.nom}" />
+                        <small class="p-invalid" v-if="submitted && !client.nom">Nom is required.</small>
+                    </div>
+                    <div class="field">
+                        <label for="prenom">Prénom</label>
+                        <InputText id="prenom" v-model.trim="client.prenom" required="true" :class="{'p-invalid': submitted && !client.prenom}" />
+                        <small class="p-invalid" v-if="submitted && !client.prenom">Prénom is required.</small>
+                    </div>
+                    <div class="field">
+                        <label for="adresse">Adresse</label>
+                        <InputText id="adresse" v-model.trim="client.adresse" />
+                    </div>
+                    <div class="field">
+                        <label for="numero_telephone">Téléphone</label>
+                        <InputText id="numero_telephone" v-model.trim="client.numero_telephone" required="true" :class="{'p-invalid': submitted && !client.numero_telephone}" />
+                        <small class="p-invalid" v-if="submitted && !client.numero_telephone">Téléphone is required.</small>
+                    </div>
+                    <div class="field">
+                        <label for="sexe">Sexe</label>
+                        <Dropdown id="sexe" v-model="client.sexe" :options="['M', 'F']" placeholder="Select Sex" />
                     </div>
                     <template #footer>
                         <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
-                        <Button label="Save" icon="pi pi-check" class="p-button-text" @click="saveCategory" />
+                        <Button label="Save" icon="pi pi-check" class="p-button-text" @click="saveClient" />
                     </template>
                 </Dialog>
 
-                <Dialog v-model:visible="deleteCategoryDialog" :style="{width: '450px'}" header="Confirm" :modal="true">
+                <Dialog v-model:visible="deleteClientDialog" :style="{width: '450px'}" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="category">Are you sure you want to delete <b>{{category.name}}</b>?</span>
+                        <span v-if="client">Are you sure you want to delete <b>{{client.nom}} {{client.prenom}}</b>?</span>
                     </div>
                     <template #footer>
-                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteCategoryDialog = false" />
-                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteCategory" />
+                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteClientDialog = false" />
+                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteClient" />
                     </template>
                 </Dialog>
 
-                <Dialog v-model:visible="deleteCategoriesDialog" :style="{width: '450px'}" header="Confirm" :modal="true">
+                <Dialog v-model:visible="deleteClientsDialog" :style="{width: '450px'}" header="Confirm" :modal="true">
                     <div class="flex align-items-center justify-content-center">
                         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                        <span v-if="category">Are you sure you want to delete the selected categories?</span>
+                        <span v-if="client">Are you sure you want to delete the selected clients?</span>
                     </div>
                     <template #footer>
-                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteCategoriesDialog = false" />
-                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteSelectedCategories" />
+                        <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteClientsDialog = false" />
+                        <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteSelectedClients" />
                     </template>
                 </Dialog>
             </div>

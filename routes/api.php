@@ -25,6 +25,7 @@ use App\Http\Controllers\OrderController;
 Route::get('clients', [ClientController::class, 'index']);
 Route::post('clients', [ClientController::class, 'store']);
 Route::get('clients/{id}', [ClientController::class, 'show']);
+Route::delete('clients/{id}', [ClientController::class, 'destroy']);
 
 Route::get('categories', [CategoryController::class, 'index']);
 Route::post('categories', [CategoryController::class, 'store']);

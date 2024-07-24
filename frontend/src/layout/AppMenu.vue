@@ -59,6 +59,16 @@ const model = ref([
                 to: '/pages/Category'
             },
             {
+                label: 'Client',
+                icon: 'pi pi-fw pi-pencil',
+                to: '/pages/Client'
+            },
+            {
+                label: 'User',
+                icon: 'pi pi-fw pi-pencil',
+                to: '/pages/User'
+            },
+            {
                 label: 'Timeline',
                 icon: 'pi pi-fw pi-calendar',
                 to: '/pages/timeline'
