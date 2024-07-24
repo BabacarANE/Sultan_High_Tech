@@ -162,6 +162,11 @@ const router = createRouter({
                     component: () => import('@/views/pages/Delivery.vue')
                 },
                 {
+                    path: '/pages/panier',
+                    name: 'panier',
+                    component: () => import('@/views/pages/Panier.vue')
+                },
+                {
                     path: '/pages/role',
                     name: 'role',
                     component: () => import('@/views/pages/Role.vue')

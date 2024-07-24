@@ -35,17 +35,40 @@ const updateQuantity = (quantity) => {
     }
 };
 
+const setCookie = (name, value, days) => {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    const expires = "expires=" + date.toUTCString();
+    document.cookie = name + "=" + JSON.stringify(value) + ";" + expires + ";path=/";
+};
+
+const getCookie = (name) => {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for(let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return JSON.parse(c.substring(nameEQ.length, c.length));
+    }
+    return null;
+};
+
 const openOrderDialog = (product) => {
     selectedProduct.value = product;
+
+    // Récupération des informations du client depuis le cookie
+    const savedClientInfo = getCookie('clientInfo');
+
     orderDetails.value = {
         ...orderDetails.value,
-        ...user.value,
+        ...(savedClientInfo || user.value), // Utilise les infos du cookie s'il existe, sinon celles de l'utilisateur
         products: [{
             product_id: product.id,
             quantite: 1,
             prix_unitaire: product.prix
         }]
     };
+
     orderDialogVisible.value = true;
 };
 
@@ -58,6 +81,18 @@ const placeOrder = async () => {
     try {
         const response = await axios.post('http://127.0.0.1:8000/api/orders', orderDetails.value);
         toast.add({ severity: 'success', summary: 'Commande passée', detail: 'Votre commande a été passée avec succès', life: 3000 });
+
+        // Sauvegarde des informations du client dans un cookie
+        const clientInfo = {
+            prenom: orderDetails.value.prenom,
+            nom: orderDetails.value.nom,
+            email: orderDetails.value.email,
+            numero_telephone: orderDetails.value.numero_telephone,
+            adresse: orderDetails.value.adresse,
+            sexe: orderDetails.value.sexe
+        };
+        setCookie('clientInfo', clientInfo, 30);
+
         closeOrderDialog();
     } catch (error) {
         console.error('Erreur lors de la commande:', error);
@@ -77,19 +112,6 @@ const addToWishlist = (product) => {
         toast.add({ severity: 'info', summary: 'Déjà ajouté', detail: 'Ce produit est déjà dans votre liste de souhaits', life: 3000 });
     }
 };
-
-// Initialiser les détails de la commande avec les données de l'utilisateur si disponibles
-if (user.value) {
-    orderDetails.value = {
-        ...orderDetails.value,
-        prenom: user.value.prenom,
-        nom: user.value.nom,
-        email: user.value.email,
-        numero_telephone: user.value.client?.numero_telephone,
-        adresse: user.value.client?.adresse,
-        sexe: user.value.client?.sexe
-    };
-}
 
 const dataviewValue = ref([]);
 const layout = ref('grid');
@@ -148,7 +170,6 @@ const getSeverity = (product) => {
     }
 };
 </script>
-
 
 <template>
     <div class="grid">

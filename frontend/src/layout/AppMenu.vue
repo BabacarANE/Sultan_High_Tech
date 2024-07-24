@@ -12,7 +12,7 @@ const model = ref([
         label: 'UI Components',
         items: [
             { label: 'List', icon: 'pi pi-fw pi-list', to: '/uikit/list' },
-            { label: 'Menu', icon: 'pi pi-fw pi-bars', to: '/uikit/menu', preventExact: true },
+            { label: 'Panier', icon: 'pi pi-shopping-cart', to: '/pages/Panier', preventExact: true },
             { label: 'Chart', icon: 'pi pi-fw pi-chart-bar', to: '/uikit/charts' }
         ]
     },
