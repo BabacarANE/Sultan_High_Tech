@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\ProcessDelivery;
 use App\Mail\OrderProcessedMail;
+use App\Models\Client;
 use App\Models\DetailOrder;
 use App\Models\Order;
 use App\Models\OrderProduct;
@@ -212,5 +213,18 @@ class OrderController extends Controller
         Log::info('Quantités de stock mises à jour');
 
         return response()->json(['message' => 'Commande marquée comme livrée et stock mis à jour.']);
+    }
+    public function getClientOrders($userId)
+    {
+        $user=User::findOrFail($userId);
+        $client = Client::where('user_id', $userId)->first();
+        $clientId=$client->id;
+
+        $orders = Order::where('client_id', $clientId)
+            ->with('products')  // Charge les produits associés à chaque commande
+            ->orderBy('date_commande', 'desc')
+            ->get();
+
+        return response()->json($orders);
     }
 }

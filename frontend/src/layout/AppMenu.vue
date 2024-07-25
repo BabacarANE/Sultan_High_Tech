@@ -28,6 +28,26 @@ const model = computed(() => {
             ]
         }
     ];
+    if (isUser.value){
+        baseMenu.push({
+            label: 'INFORMATIONS',
+            icon: 'pi pi-fw pi-briefcase',
+            to: '/pages',
+            items: [
+                {
+                    label: 'History order',
+                    icon: 'pi pi-fw pi-pencil',
+                    to: '/pages/history'
+                },
+                {
+                    label: 'Information',
+                    icon: 'pi pi-fw pi-user',
+                    to: '/pages/information'
+                }
+
+            ]
+        });
+    }
 
     if (isAdmin.value) {
         baseMenu.push({

@@ -56,12 +56,25 @@ const getCookie = (name) => {
 const openOrderDialog = (product) => {
     selectedProduct.value = product;
 
+    // Récupération des informations du client depuis le store
+    const storeClient = store.getters['user/getClient'];
+    const storeUser = store.getters['user/getUser'];
+
     // Récupération des informations du client depuis le cookie
     const savedClientInfo = getCookie('clientInfo');
 
+    // Crée l'objet client en priorisant les données du store, puis du cookie
+    const clientInfo = {
+        prenom: storeClient?.prenom || savedClientInfo?.prenom || '',
+        nom: storeClient?.nom || savedClientInfo?.nom || '',
+        email: storeUser?.email || savedClientInfo?.email || '',
+        numero_telephone: storeClient?.numero_telephone || savedClientInfo?.numero_telephone || '',
+        adresse: storeClient?.adresse || savedClientInfo?.adresse || '',
+        sexe: storeClient?.sexe || savedClientInfo?.sexe || ''
+    };
+
     orderDetails.value = {
-        ...orderDetails.value,
-        ...(savedClientInfo || user.value), // Utilise les infos du cookie s'il existe, sinon celles de l'utilisateur
+        ...clientInfo,
         products: [{
             product_id: product.id,
             quantite: 1,

@@ -29,6 +29,9 @@ const actions = {
     setUser({ commit }, user) {
         console.log('setUser action called with:', user);
         commit('SET_USER', user);
+        if (user.client) {
+            commit('SET_CLIENT', user.client);
+        }
     },
     setToken({ commit }, token) {
         console.log('setToken action called with:', token);

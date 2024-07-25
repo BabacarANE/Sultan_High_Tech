@@ -59,6 +59,7 @@ Route::put('orders/{id}', [OrderController::class, 'update']);
 Route::delete('orders/{id}', [OrderController::class, 'destroy']);
 Route::post('orders/{id}/validate', [OrderController::class, 'validateOrder']);
 Route::post('/orders/{id}/deliver', [OrderController::class, 'markAsDelivered']);
+Route::get('/clients/{clientId}/orders', [OrderController::class, 'getClientOrders']);
 
 // Routes protégées
 Route::middleware('auth:sanctum')->group(function () {
