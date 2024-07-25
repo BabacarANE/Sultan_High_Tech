@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -60,6 +61,7 @@ Route::delete('orders/{id}', [OrderController::class, 'destroy']);
 Route::post('orders/{id}/validate', [OrderController::class, 'validateOrder']);
 Route::post('/orders/{id}/deliver', [OrderController::class, 'markAsDelivered']);
 Route::get('/clients/{clientId}/orders', [OrderController::class, 'getClientOrders']);
+Route::get('dashboard/stats', [DashboardController::class, 'getDashboardStats']);
 
 // Routes protégées
 Route::middleware('auth:sanctum')->group(function () {
