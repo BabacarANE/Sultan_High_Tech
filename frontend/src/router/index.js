@@ -10,8 +10,8 @@ const router = createRouter({
             children: [
                 {
                     path: '/',
-                    name: 'dashboard',
-                    component: () => import('@/views/Dashboard.vue')
+                    name: 'Acceuil',
+                    component: () => import('@/views/uikit/List.vue')
                 },
                 {
                     path: '/uikit/formlayout',
@@ -47,6 +47,11 @@ const router = createRouter({
                     path: '/uikit/list',
                     name: 'list',
                     component: () => import('@/views/uikit/List.vue')
+                },
+                {
+                    path: '/dashboard',
+                    name: 'dashboard',
+                    component: () => import('@/views/Dashboard.vue')
                 },
                 {
                     path: '/uikit/tree',
@@ -193,6 +198,11 @@ const router = createRouter({
             path: '/auth/login',
             name: 'login',
             component: () => import('@/views/pages/auth/Login.vue')
+        },
+        {
+            path: '/auth/register',
+            name: 'register',
+            component: () => import('@/views/pages/auth/Register.vue')
         },
         {
             path: '/auth/access',

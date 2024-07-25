@@ -1,107 +1,103 @@
 <script setup>
-import { ref } from 'vue';
-
+import { ref, computed, onMounted } from 'vue';
+import { useStore } from 'vuex';
 import AppMenuItem from './AppMenuItem.vue';
 
-const model = ref([
-    {
-        label: 'Home',
-        items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }]
-    },
-    {
-        label: 'UI Components',
-        items: [
-            { label: 'List', icon: 'pi pi-fw pi-list', to: '/uikit/list' },
-            { label: 'Panier', icon: 'pi pi-shopping-cart', to: '/pages/Panier', preventExact: true },
-            { label: 'Chart', icon: 'pi pi-fw pi-chart-bar', to: '/uikit/charts' }
-        ]
-    },
+const store = useStore();
 
-    {
-        label: 'Pages',
-        icon: 'pi pi-fw pi-briefcase',
-        to: '/pages',
-        items: [
-            {
-                label: 'Landing',
-                icon: 'pi pi-fw pi-globe',
-                to: '/landing'
-            },
-            {
-                label: 'Auth',
-                icon: 'pi pi-fw pi-user',
-                items: [
-                    {
-                        label: 'Login',
-                        icon: 'pi pi-fw pi-sign-in',
-                        to: '/auth/login'
-                    },
-                    {
-                        label: 'Error',
-                        icon: 'pi pi-fw pi-times-circle',
-                        to: '/auth/error'
-                    },
-                    {
-                        label: 'Access Denied',
-                        icon: 'pi pi-fw pi-lock',
-                        to: '/auth/access'
-                    }
-                ]
-            },
-            {
-                label: 'Product',
-                icon: 'pi pi-fw pi-pencil',
-                to: '/pages/crud'
-            },
-            {
-                label: 'Category',
-                icon: 'pi pi-fw pi-pencil',
-                to: '/pages/Category'
-            },
-            {
-                label: 'Client',
-                icon: 'pi pi-fw pi-pencil',
-                to: '/pages/Client'
-            },
-            {
-                label: 'User',
-                icon: 'pi pi-fw pi-user',
-                to: '/pages/User'
-            },
-            {
-                label: 'Order',
-                icon: 'pi pi-fw pi-pencil',
-                to: '/pages/Order'
-            },
-            {
-                label: 'Delivery Service',
-                icon: 'pi pi-fw pi-pencil',
-                to: '/pages/Delivery'
-            },
-            {
-                label: 'Roles',
-                icon: 'pi pi-fw pi-pencil',
-                to: '/pages/Role'
-            },
-            {
-                label: 'Timeline',
-                icon: 'pi pi-fw pi-calendar',
-                to: '/pages/timeline'
-            },
-            {
-                label: 'Not Found',
-                icon: 'pi pi-fw pi-exclamation-circle',
-                to: '/pages/notfound'
-            },
-            {
-                label: 'Empty',
-                icon: 'pi pi-fw pi-circle-off',
-                to: '/pages/empty'
-            }
-        ]
+const isAdmin = computed(() => store.getters['user/isAdmin']);
+const isUser = computed(() => store.getters['user/isUser']);
+const isDeliveryService = computed(() => store.getters['user/isDeliveryService']);
+const userRole = computed(() => store.getters['user/userRole']);
+const currentUser = computed(() => store.getters['user/getUser']);
+
+const model = computed(() => {
+    console.log('Calculating menu model');
+    console.log('Current user:', currentUser.value);
+    console.log('User role:', userRole.value);
+    console.log('Is Admin:', isAdmin.value);
+    console.log('Is User:', isUser.value);
+    console.log('Is Delivery Service:', isDeliveryService.value);
+
+    const baseMenu = [
+        {
+            label: 'HOME',
+            items: [
+                {label: 'Produits', icon: 'pi pi-fw pi-list', to: '/'},
+                {label: 'Panier', icon: 'pi pi-shopping-cart', to: '/pages/Panier', preventExact: true}
+            ]
+        }
+    ];
+
+    if (isAdmin.value) {
+        baseMenu.push({
+            label: 'DASHBOARD',
+            items: [{label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/dashboard'}]
+        });
+        baseMenu.push({
+            label: 'ADMINISTRATION',
+            icon: 'pi pi-fw pi-briefcase',
+            to: '/pages',
+            items: [
+                {
+                    label: 'Product',
+                    icon: 'pi pi-fw pi-pencil',
+                    to: '/pages/crud'
+                },
+                {
+                    label: 'Category',
+                    icon: 'pi pi-fw pi-pencil',
+                    to: '/pages/Category'
+                },
+                {
+                    label: 'Client',
+                    icon: 'pi pi-fw pi-pencil',
+                    to: '/pages/Client'
+                },
+                {
+                    label: 'User',
+                    icon: 'pi pi-fw pi-user',
+                    to: '/pages/User'
+                },
+                {
+                    label: 'Order',
+                    icon: 'pi pi-fw pi-pencil',
+                    to: '/pages/Order'
+                },
+                {
+                    label: 'Delivery Service',
+                    icon: 'pi pi-fw pi-pencil',
+                    to: '/pages/Delivery'
+                },
+                {
+                    label: 'Roles',
+                    icon: 'pi pi-fw pi-pencil',
+                    to: '/pages/Role'
+                }
+            ]
+        });
+    } else if (isDeliveryService.value) {
+        baseMenu.push({
+            label: 'GESTION',
+            icon: 'pi pi-fw pi-briefcase',
+            to: '/pages',
+            items: [
+                {
+                    label: 'Delivery Service',
+                    icon: 'pi pi-fw pi-pencil',
+                    to: '/pages/Delivery'
+                }
+            ]
+        });
     }
 
-]);
+    return baseMenu;
+});
+
+onMounted(() => {
+    console.log('Component mounted');
+    console.log('Initial user state:', store.state.user);
+});
 </script>
 
 <template>
@@ -110,12 +106,9 @@ const model = ref([
             <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
             <li v-if="item.separator" class="menu-separator"></li>
         </template>
-        <li>
-            <a href="https://www.primefaces.org/primeblocks-vue/#/" target="_blank">
-                <img src="/layout/images/banner-primeblocks.png" alt="Prime Blocks" class="w-full mt-3"/>
-            </a>
-        </li>
     </ul>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+// Vos styles ici si nécessaire
+</style>

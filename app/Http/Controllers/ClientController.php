@@ -24,6 +24,7 @@ class ClientController extends Controller
         // Validation des données de la requête
         $request->validate([
             'photo' => 'nullable|string',
+            'password' => 'nullable|string',
             'nom' => 'required|string',
             'prenom' => 'required|string',
             'adresse' => 'required|string',
@@ -32,13 +33,18 @@ class ClientController extends Controller
             'sexe' => 'required|in:M,F',
         ]);
 
+        if($request->password==null){
+            $password="passer123";
+        }else{
+            $password=$request->password;
+        }
         // Création de l'utilisateur
         $user = User::create([
             'photo' => $request->photo,
             'nom' => $request->nom,
             'prenom' => $request->prenom,
             'email' => $request->email,
-            'password' => Hash::make("passer123"),
+            'password' => Hash::make($password),
             'role_id' => 2,
         ]);
 

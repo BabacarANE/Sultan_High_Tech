@@ -38,10 +38,10 @@ const handleLogin = async () => {
 
         // Rediriger l'utilisateur en fonction du rôle
         if (user.role_id === 1) {
-            router.push({ path: '/' });
+            router.push({ path: '/dashboard' });
         } else {
             if (user.role_id===2){
-                router.push({ path: '/uikit/list' });
+                router.push({ path: '/' });
             }else {
                 router.push({ path: '/pages/delivery' });
             }
@@ -84,8 +84,14 @@ const handleLogin = async () => {
                             <a class="font-medium no-underline ml-2 text-right cursor-pointer" style="color: var(--primary-color)">Forgot password?</a>
                         </div>
                         <Button label="Sign In" class="w-full p-3 text-xl" type="submit"></Button>
+
                         <div v-if="errorMessage" class="mt-3 text-red-500">{{ errorMessage }}</div>
                     </form>
+                    <div class="flex justify-content-between mt-5">
+                        <Button label="Register" class="w-full p-3 text-xl mr-2" @click="$router.push('/auth/register')"></Button>
+                        <Button label="Home" class="w-full p-3 text-xl ml-2" @click="$router.push('/')"></Button>
+                    </div>
+
                 </div>
             </div>
         </div>
